@@ -1,17 +1,12 @@
 class Command{
-    constructor(commandName, commandObject){
+    constructor(instance, commandName, commandObject){
+        this._instance = instance
         this._commandName = commandName.toLowerCase()
         this._commandObject = commandObject
-
-        this.verifySyntax()
     }
 
-    verifySyntax(){
-        if (!this._commandObject.callback) {
-            throw new Error(
-              `Command "${commandName}" does not have a callback function.`
-            )
-          }
+    get instance(){
+        return this.instance
     }
 
     get commandName(){

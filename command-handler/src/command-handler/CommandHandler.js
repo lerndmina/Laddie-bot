@@ -7,14 +7,16 @@ class CommandHandler {
   // <commandName, instance of command class
   commands = new Map()
 
-  constructor(commandsDir, client) {
-    this.commandsDir = commandsDir
+  constructor(instance, commandsDir, client) {
+    this._instance = instance
+    this._commandsDir = commandsDir
     this.readFiles()
     this.messageListener(client)
   }
 
   readFiles() {
-    const files = getAllFiles(this.commandsDir)
+    const files = getAllFiles(this._commandsDir)
+    const validations = this.getValidations('syntax')
 
     for (let file of files) {
       const commandObject = require(file)
@@ -23,19 +25,18 @@ class CommandHandler {
       commandName = commandName.pop()
       commandName = commandName.split('.')[0]
 
-      const command = new Command(commandName, commandObject)
+      const command = new Command(this._instance, commandName, commandObject)
+
+      for (const validation of validations){
+        validation(command)
+      }
+
       this.commands.set(command.commandName, command)
     }
-
-    console.log(this.commands)
   }
 
   messageListener(client) {
-    const validations = getAllFiles(path.join(__dirname, './validations'))
-    .map((filePath) => {
-      return require(filePath)
-    })
-    console.log(validations)
+    const validations = this.getValidations('run-time')
 
     const prefix = '!'
 
@@ -69,6 +70,13 @@ class CommandHandler {
 
       callback(usage)
     })
+  }
+  getValidations(folder){
+    const validations = getAllFiles(
+      path.join(__dirname, `./validations/${folder}`))
+    .map((filePath) => require(filePath))
+
+    return validations
   }
 }
 

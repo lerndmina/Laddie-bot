@@ -3,6 +3,8 @@ module.exports = {
   // maxArgs: 3, // default -1 = no limit
   correctSyntax: '{PREFIX}{COMMAND_NAME} <number1> <number2> [number3]', // default null = no syntax
 
+  devOnly: true, // default false
+
   callback: ({ message , args }) => {
     let sum = 0
 
