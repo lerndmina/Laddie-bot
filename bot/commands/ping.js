@@ -1,5 +1,5 @@
 module.exports = {
   callback: ({ message }) => {
-    message.reply('pong')
+    message.reply('pong!')
   },
 }
