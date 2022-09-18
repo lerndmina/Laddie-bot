@@ -13,7 +13,7 @@ module.exports = {
   testOnly: true, // default false
 
   // guildOnly: true,
-  ownerOnly: true,
+  // ownerOnly: true,
 
   callback: ({ args }) => {
     let sum = 0
