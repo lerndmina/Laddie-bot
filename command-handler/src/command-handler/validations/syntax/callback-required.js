@@ -1,5 +1,5 @@
 module.exports = (command) => {
-    const {commandObject, commandName} = command
+  const {instance, commandName, commandObject } = command
 
   if (!commandObject.callback) {
     throw new Error(

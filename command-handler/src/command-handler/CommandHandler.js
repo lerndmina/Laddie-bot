@@ -4,7 +4,7 @@ const getAllFiles = require('../util/get-all-files')
 const Command = require('./Command')
 
 class CommandHandler {
-  // <commandName, instance of command class
+  // <commandName, instance of the Command class>
   commands = new Map()
 
   constructor(instance, commandsDir, client) {
@@ -27,7 +27,7 @@ class CommandHandler {
 
       const command = new Command(this._instance, commandName, commandObject)
 
-      for (const validation of validations){
+      for (const validation of validations) {
         validation(command)
       }
 
@@ -41,11 +41,8 @@ class CommandHandler {
     const prefix = '!'
 
     client.on('messageCreate', (message) => {
-      if (message.author.bot){
-        return
-      }
       const { content } = message
-      console.log(`Message detected: ${content}`)
+
       if (!content.startsWith(prefix)) {
         return
       }
@@ -58,23 +55,28 @@ class CommandHandler {
         return
       }
 
-      const usage = { message, args, text: args.join(" ") }
+      const usage = {
+        message,
+        args,
+        text: args.join(' '),
+        guild: message.guild,
+      }
 
-      for (const validation of validations){
-        if (!validation(command, usage, prefix)){
+      for (const validation of validations) {
+        if (!validation(command, usage, prefix)) {
           return
         }
       }
 
       const { callback } = command.commandObject
-
       callback(usage)
     })
   }
-  getValidations(folder){
+
+  getValidations(folder) {
     const validations = getAllFiles(
-      path.join(__dirname, `./validations/${folder}`))
-    .map((filePath) => require(filePath))
+      path.join(__dirname, `./validations/${folder}`)
+    ).map((filePath) => require(filePath))
 
     return validations
   }
