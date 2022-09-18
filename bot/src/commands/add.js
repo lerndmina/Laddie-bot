@@ -12,6 +12,9 @@ module.exports = {
   type: "BOTH", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
 
+  // guildOnly: true,
+  ownerOnly: true,
+
   callback: ({ args }) => {
     let sum = 0
 

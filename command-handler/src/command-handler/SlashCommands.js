@@ -68,6 +68,7 @@ class SlashCommands {
       description,
       options,
     });
+    console.log(`Command "${name}" is new, registering...`);
   }
 
   async delete(commandName, guildID) {
@@ -81,6 +82,7 @@ class SlashCommands {
     }
 
     await existingCommand.delete();
+    console.log(`Command "${commandName}" is being deleted...`);
   }
 
   createOptions({ expectedArgs = "", minArgs = 0 }) {
