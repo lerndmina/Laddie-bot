@@ -1,129 +1,163 @@
-const path = require('path')
-const { InteractionType } = require('discord.js')
+const path = require("path");
+const { InteractionType } = require("discord.js");
 
-const getAllFiles = require('../util/get-all-files')
-const Command = require('./Command')
-const SlashCommands = require('./SlashCommands')
+const getAllFiles = require("../util/get-all-files");
+const Command = require("./Command");
+const SlashCommands = require("./SlashCommands");
 
 class CommandHandler {
   // <commandName, instance of the Command class>
-  _commands = new Map()
-  _validations = this.getValidations('run-time')
-  _prefix = '!'
+  _commands = new Map();
+  _validations = this.getValidations("run-time");
+  _prefix = "!";
 
   constructor(instance, commandsDir, client) {
-    this._instance = instance
-    this._commandsDir = commandsDir
-    this._slashCommands = new SlashCommands(client)
-    this.readFiles()
-    this.messageListener(client)
-    this.interactionListener(client)
+    this._instance = instance;
+    this._commandsDir = commandsDir;
+    this._slashCommands = new SlashCommands(client);
+    this.readFiles();
+    this.messageListener(client);
+    this.interactionListener(client);
   }
 
   readFiles() {
-    const files = getAllFiles(this._commandsDir)
-    const validations = this.getValidations('syntax')
+    const files = getAllFiles(this._commandsDir);
+    const validations = this.getValidations("syntax");
 
     for (let file of files) {
-      const commandObject = require(file)
+      const commandObject = require(file);
 
-      let commandName = file.split(/[/\\]/)
-      commandName = commandName.pop()
-      commandName = commandName.split('.')[0]
+      let commandName = file.split(/[/\\]/);
+      commandName = commandName.pop();
+      commandName = commandName.split(".")[0];
 
-      const command = new Command(this._instance, commandName, commandObject)
+      const command = new Command(this._instance, commandName, commandObject);
 
-      for (const validation of validations) {
-        validation(command)
+      const {
+        description,
+        type,
+        testOnly,
+        delete: del,
+      } = commandObject;
+
+      if (del) {
+        if (type === "SLASH" || type === "BOTH") {
+          if (testOnly) {
+            for (const guildID of this._instance.testServers) {
+              this._slashCommands.delete(command.commandName, guildID);
+            }
+          } else {
+            this._slashCommands.delete(command.commandName);
+          }
+        }
+        continue;
       }
 
-      const { description, options = [], type, testOnly } = commandObject
+      for (const validation of validations) {
+        validation(command);
+      }
 
-      this._commands.set(command.commandName, command)
+      this._commands.set(command.commandName, command);
 
-      if(type === "SLASH" || type === "BOTH"){
-        if(testOnly){
-          for (const guildID of this._instance.testServers){
+      if (type === "SLASH" || type === "BOTH") {
+        const options = commandObject.options || this._slashCommands.createOptions(commandObject)
+
+        if (testOnly) {
+          for (const guildID of this._instance.testServers) {
             this._slashCommands.create(
-              command.commandName, 
+              command.commandName,
               description,
               options,
-              guildID)
+              guildID
+            );
           }
-        } else{
-          this._slashCommands.create(
-            command.commandName, 
-            description,
-            options)
+        } else {
+          this._slashCommands.create(command.commandName, description, options);
         }
       }
     }
   }
 
-  async runCommand(commandName, args, message, interaction){
-    const command = this._commands.get(commandName)
-      if (!command) {
-        return
+  async runCommand(commandName, args, message, interaction) {
+    const command = this._commands.get(commandName);
+    if (!command) {
+      return;
+    }
+
+    const { callback, type } = command.commandObject;
+
+    if (message && type === "SLASH") {
+      return;
+    }
+
+    const usage = {
+      message,
+      interaction,
+      args,
+      text: args.join(" "),
+      guild: message ? message.guild : interaction.guild,
+    };
+
+    for (const validation of this._validations) {
+      if (!validation(command, usage, this._prefix)) {
+        return;
       }
+    }
 
-      const { callback, type } = command.commandObject
-
-      if(message && type === "SLASH"){
-        return
-      }
-
-      const usage = {
-        message,
-        interaction,
-        args,
-        text: args.join(' '),
-        guild: message ? message.guild : interaction.guild,
-      }
-
-      for (const validation of this._validations) {
-        if (!validation(command, usage, this._prefix)) {
-          return
-        }
-      }
-
-      callback(usage)
+    return await callback(usage);
   }
 
   messageListener(client) {
-    
-
-    client.on('messageCreate', async (message) => {
-      const { content } = message
+    client.on("messageCreate", async (message) => {
+      const { content } = message;
 
       if (!content.startsWith(this._prefix)) {
-        return
+        return;
       }
 
-      const args = content.split(/\s+/)
-      const commandName = args.shift().substring(this._prefix.length).toLowerCase()
+      const args = content.split(/\s+/);
+      const commandName = args
+        .shift()
+        .substring(this._prefix.length)
+        .toLowerCase();
 
-      await this.runCommand(commandName, args, message)
-    })
+      const response = await this.runCommand(commandName, args, message);
+      if (response) {
+        message.reply(response).catch(() => {});
+      }
+    });
   }
 
-  interactionListener(client){
-    client.on('interactionCreate', (interaction) => {
-      console.log("Interaction happened")
-      if(interaction.type !== InteractionType.ApplicationCommand){
-        return
+  interactionListener(client) {
+    client.on("interactionCreate", async (interaction) => {
+      if (interaction.type !== InteractionType.ApplicationCommand) {
+        return;
       }
 
-      console.log(`Command Name ${interaction.commandName}`)
-    })
+      const args = interaction.options.data.map(({ value }) => {
+        return String(value)
+      })
+
+      const response = await this.runCommand(
+        interaction.commandName,
+        args,
+        null,
+        interaction
+      );
+
+      if (response) {
+        interaction.reply(response).catch(() => {});
+      }
+    });
   }
 
   getValidations(folder) {
     const validations = getAllFiles(
       path.join(__dirname, `./validations/${folder}`)
-    ).map((filePath) => require(filePath))
+    ).map((filePath) => require(filePath));
 
-    return validations
+    return validations;
   }
 }
 
-module.exports = CommandHandler
+module.exports = CommandHandler;
