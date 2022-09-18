@@ -17,7 +17,7 @@ client.on('ready', () => {
     client,
     mongoUri: process.env.MONGO_URI,
     commandsDir: path.join(__dirname, 'commands'),
-    testServers: [],
+    testServers: ['1020986581013778472'], // must be an array of strings
   })
 })
 
