@@ -1,12 +1,12 @@
 module.exports = {
-  description: "Adds 2+ numbers together",
+  description: "Ping the bot",
 
-  minArgs: 2, // default 0
+  // minArgs: 2, // default 0
   // maxArgs: 3, // default -1 = no limit
-  correctSyntax: '{PREFIX}{COMMAND_NAME} <number1> <number2> [number3]', // default null = no syntax
+  correctSyntax: '{PREFIX}{COMMAND_NAME}', // default null = no syntax
 
 
-  type: "BOTH", // Valid types = LEGACY, SLASH, BOTH
+  type: "SLASH", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
 
   callback: ({ message , args }) => {
