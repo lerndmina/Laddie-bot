@@ -2,7 +2,7 @@ module.exports = (command, usage, prefix) => {
     const { instance, commandObject } = command
     const { guild, message } = usage
 
-    console.log(`Guild ID: ${guild?.id} | Test Servers: ${instance.testServers} | Guild: ${guild}`)
+    // console.log(`Guild ID: ${guild?.id} | Test Servers: ${instance.testServers} | Guild: ${guild}`)
 
 
     if(commandObject.testOnly !== true){
