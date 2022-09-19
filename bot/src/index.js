@@ -14,14 +14,16 @@ const client = new Client({
 })
 
 client.on('ready', () => {
-  console.log('The bot is ready!')
+  const ownerIDs = ["234439833802637313"]
+  console.log(`Logged into discord as ${client.user.tag}`)
+  console.log(`Owners set as ${ownerIDs}`)
 
   new CommandHandler({
     client,
     mongoUri: process.env.MONGO_URI,
     commandsDir: path.join(__dirname, 'commands'),
     testServers: ["1020986581013778472"], // must be an array of strings
-    botOwners: ["234439833802637313"],
+    botOwners: ownerIDs,
   })
 })
 

@@ -7,7 +7,7 @@ const getAllFiles = (path) => {
   let commandFiles = []
 
   for (const file of files) {
-    const fileName = `${path}\\${file.name}`
+    const fileName = `${path}\/\/${file.name}`
 
     if (file.isDirectory()) {
       commandFiles = [...commandFiles, ...getAllFiles(fileName)]
