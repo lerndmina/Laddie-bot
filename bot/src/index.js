@@ -14,7 +14,7 @@ const client = new Client({
 })
 
 client.on('ready', () => {
-  console.log('The bot is ready!')
+  console.log(`Logged into discord as ${client.user.tag}`)
 
   new CommandHandler({
     client,
