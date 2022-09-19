@@ -1,3 +1,5 @@
+const cooldownSchema = require('../models/cooldown-schema')
+
 const cooldownDurations = {
   s: 1,
   m: 60,
@@ -96,7 +98,7 @@ class Cooldowns {
     return this._botOwnersBypass && this._instance._botOwners.includes(userID);
   }
 
-  startCooldown({ cooldownType, userID, actionID, guildID = "", duration }) {
+  async startCooldown({ cooldownType, userID, actionID, guildID = "", duration }) {
     if (this.canBypassCooldown(userID)) {
       return;
     }
@@ -109,18 +111,34 @@ class Cooldowns {
       );
     }
 
-    const seconds = this.getCooldownSeconds(duration);
-
-    if (seconds >= this._dbRequired) {
-      // TODO save to mongo
-    }
-
     const key = this.getCooldownKey(cooldownType, userID, actionID, guildID);
 
     const expires = new Date();
     expires.setSeconds(expires.getSeconds() + seconds);
 
     this._cooldowns.set(key, expires);
+
+    const seconds = this.getCooldownSeconds(duration);
+
+    if (seconds >= this._dbRequired) {
+      await cooldownSchema.findOneAndUpdate(
+        {
+            _id: key,
+
+        },
+        {
+            _id: key,
+            expires,
+        },
+        {
+            upsert: true,
+            // update
+            // and insert
+        }
+      )
+    }
+
+    
 
     console.log(this._cooldowns);
   }
