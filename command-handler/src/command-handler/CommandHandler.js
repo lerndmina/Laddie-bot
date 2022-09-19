@@ -98,7 +98,8 @@ class CommandHandler {
     };
 
     for (const validation of this._validations) {
-      if (!validation(command, usage, this._prefix)) {
+      if (!validation(command, usage, this._prefix)) { 
+        // Reminder for me this returns true if the command can run
         return;
       }
     }
