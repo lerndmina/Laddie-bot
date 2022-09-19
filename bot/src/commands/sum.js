@@ -25,19 +25,19 @@ module.exports = {
     errorMessage: "Please wait {TIME} before trying that again.",
   },
 
-  permissions: [
-    // Pick one of
-    // user, bot
-    PermissionFlagsBits.Administrator,
-    PermissionFlagsBits.KickMembers,
-    PermissionFlagsBits.BanMembers,
-    PermissionFlagsBits.ManageChannels,
-    PermissionFlagsBits.ManageGuild,
-    PermissionFlagsBits.AddReactions,
-    PermissionFlagsBits.ViewAuditLog,
-    PermissionFlagsBits.PrioritySpeaker,
-    PermissionFlagsBits.Stream,
-  ],
+  // permissions: [
+  //   // Pick one of
+  //   // user, bot
+  //   PermissionFlagsBits.Administrator,
+  //   PermissionFlagsBits.KickMembers,
+  //   PermissionFlagsBits.BanMembers,
+  //   PermissionFlagsBits.ManageChannels,
+  //   PermissionFlagsBits.ManageGuild,
+  //   PermissionFlagsBits.AddReactions,
+  //   PermissionFlagsBits.ViewAuditLog,
+  //   PermissionFlagsBits.PrioritySpeaker,
+  //   PermissionFlagsBits.Stream,
+  // ],
 
   deferReply: false, // true, false "ephemeral"
 

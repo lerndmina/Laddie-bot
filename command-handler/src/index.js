@@ -19,7 +19,6 @@ class Main {
     this._testServers = testServers;
     this._botOwners = botOwners;
     this._cooldowns = new Cooldowns({
-      instanceL: this,
       ...cooldownConfig,
     });
 
@@ -28,7 +27,7 @@ class Main {
     }
 
     if (commandsDir) {
-      new CommandHandler(this, commandsDir, client);
+      this._commandHandler = new CommandHandler(this, commandsDir, client);
     }
   }
 
@@ -44,6 +43,10 @@ class Main {
 
   get cooldowns() {
     return this._cooldowns;
+  }
+
+  get commandHandler() {
+    return this._commandHandler;
   }
 
   connectToMongo(mongoUri) {

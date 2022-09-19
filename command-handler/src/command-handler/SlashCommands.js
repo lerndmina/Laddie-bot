@@ -51,14 +51,14 @@ class SlashCommands {
         options.length !== existingOptions.length ||
         this.areOptionsDifferent(options, existingOptions)
       ) {
-        console.log(`Command "${name}" has changed, updating...`);
+        console.log(`Slash command "${name}" has changed, updating...`);
 
         await commands.edit(existingCommand.id, {
             description,
             options
         })
       } else {
-        console.log(`Command "${name}" loaded.`);
+        console.log(`Slash command "${name}" loaded.`);
       }
       return;
     }
@@ -68,7 +68,7 @@ class SlashCommands {
       description,
       options,
     });
-    console.log(`Command "${name}" is new, registering...`);
+    console.log(`Slash command "${name}" is new, registering...`);
   }
 
   async delete(commandName, guildID) {
