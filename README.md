@@ -4,7 +4,7 @@
 A Discord bot that I might actually use.
 No idea what it'll do yet lmao
 
-### I don't advise using this lmao it's mostly just for learning atm
+##### I don't advise using this lmao it's mostly just for learning atm
 
 ## Badges
 
