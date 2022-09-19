@@ -4,6 +4,7 @@ const { InteractionType } = require("discord.js");
 const getAllFiles = require("../util/get-all-files");
 const Command = require("./Command");
 const SlashCommands = require("./SlashCommands");
+const { cooldownTypes } = require("../util/Cooldowns");
 
 class CommandHandler {
   // <commandName, instance of the Command class>
@@ -90,20 +91,24 @@ class CommandHandler {
   }
 
   async runCommand(command, args, message, interaction) {
-    const { callback, type } = command.commandObject;
+    const { callback, type, cooldowns } = command.commandObject;
 
     if (message && type === "SLASH") {
       return;
     }
+
+    const guild = message ? message.guild : interaction.guild
+    const member = message ? message.member : interaction.member
+    const user = message ? message.author : interaction.user
 
     const usage = {
       message,
       interaction,
       args,
       text: args.join(" "),
-      guild: message ? message.guild : interaction.guild,
-      member: message ? message.member : interaction.member,
-      user: message ? message.author : interaction.user,
+      guild,
+      member,
+      user,
     };
 
     for (const validation of this._validations) {
@@ -112,6 +117,36 @@ class CommandHandler {
         return;
       }
     }
+
+    if (cooldowns) {
+      let cooldownType
+
+      for(const type of cooldownTypes){
+        if(cooldowns[type]){
+          cooldownType = type
+          break
+        }
+      }
+    
+
+    // check cooldowns
+    const cooldownUsage = {
+      cooldownType,
+      userID: user.id,
+      actionID: `command_${command.commandName}`,
+      guildID: guild?.id,
+      duration: cooldowns[cooldownType],
+      errorMessage: cooldowns.errorMessage,
+    }
+
+    const result = await this._instance.cooldowns.canRunAction(cooldownUsage)
+
+    if(typeof result === "string"){
+      return result
+    }
+
+    this._instance.cooldowns.startCooldown(cooldownUsage)
+  }
 
     return await callback(usage);
   }

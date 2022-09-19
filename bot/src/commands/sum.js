@@ -9,15 +9,24 @@ module.exports = {
 
   // delete: true,
 
-  type: "SLASH", // Valid types = LEGACY, SLASH, BOTH
+  type: "LEGACY", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
 
-  reply: false, // replies will @ mention on Discord
+  reply: true, // replies will @ mention on Discord
+
+  cooldowns:{
+    // Pick one of
+    // perUser, perUserPerGuild, perGuild, global
+    // s m h d
+    perUserPerGuild: "30 d",
+
+    errorMessage: "Please wait {TIME} before trying that again.",
+  },
 
   // guildOnly: true,
   // ownerOnly: true,
 
-  deferReply: "ephemeral", // true, false "ephemeral"
+  deferReply: false, // true, false "ephemeral"
 
   aliases: ["add", "plus"],
 
@@ -37,7 +46,10 @@ module.exports = {
       
     }
 
-    await new Promise(resolve => setTimeout(resolve, 3000)) // Quick timeout to test defer
+    if(this.deferReply === "ephemeral" || this.deferReply === true){
+      // Quick timeout to test defer
+      await new Promise(resolve => setTimeout(resolve, 750))
+    }
 
     return(`The sum is ${sum}`)
     

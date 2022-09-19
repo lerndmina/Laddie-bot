@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const CommandHandler = require("./command-handler/CommandHandler");
+const Cooldowns = require("./util/Cooldowns");
 
 class Main {
   constructor({
@@ -9,6 +10,7 @@ class Main {
     commandsDir,
     testServers = [],
     botOwners = [],
+    cooldownConfig = {},
   }) {
     if (!client) {
       throw new Error("A client is required.");
@@ -16,6 +18,10 @@ class Main {
 
     this._testServers = testServers;
     this._botOwners = botOwners;
+    this._cooldowns = new Cooldowns({
+      instanceL: this,
+      ...cooldownConfig,
+    });
 
     if (mongoUri) {
       this.connectToMongo(mongoUri);
@@ -34,6 +40,10 @@ class Main {
 
   get botOwners() {
     this._botOwners;
+  }
+
+  get cooldowns() {
+    return this._cooldowns;
   }
 
   connectToMongo(mongoUri) {

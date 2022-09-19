@@ -24,6 +24,11 @@ client.on('ready', () => {
     commandsDir: path.join(__dirname, 'commands'),
     testServers: ["1020986581013778472"], // must be an array of strings
     botOwners: ownerIDs,
+    cooldownConfig:{
+      errorMessage: "Please wait {TIME}",
+      botOwnersBypass: false,
+      dbRequired: 300 // in seconds / 5 mins
+    }
   })
 })
 
