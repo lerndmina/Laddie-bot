@@ -6,7 +6,9 @@ module.exports = {
 
   type: "SLASH",
   testOnly: true,
+  ownerOnly: true,
   correctSyntax: "{PREFIX}{COMMAND_NAME} {ARGS}",
+
 
   deferReply: "ephemeral",
 
@@ -18,8 +20,8 @@ module.exports = {
     },
   ],
 
-  callback: async ({ args, member, interaction }) => {
-    if(member.id === process.env.OWNER_ID){
+  callback: async ({ args, interaction }) => {
+    // if(member.id === process.env.OWNER_ID){
       if(args[0] === true || args[0].toLowerCase() === "true"){
         interaction.editReply(`The bot is now stopping, Very sad. Please wait a little while for the bot to start back up.`)
         await new Promise(resolve => setTimeout(resolve, 750))
@@ -28,8 +30,8 @@ module.exports = {
       } else {
         interaction.editReply("Please confirm stopping the bot.")
       }
-    } else {
-      interaction.editReply("You are not the bot owner. You cannot stop the bot.")
-    }
+    // } else {
+    //   interaction.editReply("You are not the bot owner. You cannot stop the bot.")
+    // }
   }
 }

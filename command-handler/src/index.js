@@ -10,6 +10,7 @@ class Main {
     commandsDir,
     testServers = [],
     botOwners = [],
+    prefix,
     cooldownConfig = {},
   }) {
     if (!client) {
@@ -18,6 +19,7 @@ class Main {
 
     this._testServers = testServers;
     this._botOwners = botOwners;
+    this._prefix = prefix;
     this._cooldowns = new Cooldowns({
       instance: this,
       ...cooldownConfig,
@@ -28,7 +30,7 @@ class Main {
     }
 
     if (commandsDir) {
-      this._commandHandler = new CommandHandler(this, commandsDir, client);
+      this._commandHandler = new CommandHandler(this, commandsDir, client, this._botOwners);
     }
   }
 
@@ -48,6 +50,10 @@ class Main {
 
   get commandHandler() {
     return this._commandHandler;
+  }
+
+  get prefix() {
+    return this._prefix;
   }
 
   connectToMongo(mongoUri) {

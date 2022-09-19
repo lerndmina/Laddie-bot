@@ -10,16 +10,22 @@ class CommandHandler {
   // <commandName, instance of the Command class>
   _commands = new Map();
   _validations = this.getValidations("run-time");
-  _prefix = "!";
 
-  constructor(instance, commandsDir, client) {
+  // get the prefix from the main instance
+
+  constructor(instance, commandsDir, client, botOwners) {
     this._instance = instance;
     this._commandsDir = commandsDir;
     this._slashCommands = new SlashCommands(client);
     this._client = client;
+    this._botOwners = botOwners;
     this.readFiles();
     this.messageListener(client);
     this.interactionListener(client);
+
+    const _prefix = this._instance.prefix;
+    console.log(`The prefix ${_prefix} has been loaded in the command handler`);
+    console.log(`The bot owners ${botOwners} have been loaded in the command handler`);
   }
 
   get Commands() {
@@ -99,6 +105,10 @@ class CommandHandler {
     const { callback, type, cooldowns } = command.commandObject;
 
     if (message && type === "SLASH") {
+      // Oh shit something went very wrong here. 
+      // This is a slash command, but it was called as a legacy command
+      // If this line is ever reached, something is very wrong
+      // Panic and run away
       return;
     }
 
@@ -108,6 +118,7 @@ class CommandHandler {
 
     const usage = {
       instance: this._instance,
+      botOwners: this._botOwners,
       message,
       interaction,
       args,
@@ -117,9 +128,9 @@ class CommandHandler {
       user,
     };
 
+    // check runtime validations
     for (const validation of this._validations) {
       if (!validation(command, usage, this._prefix)) {
-        // Reminder for me this returns true if the command can run
         return;
       }
     }
@@ -147,6 +158,7 @@ class CommandHandler {
       const result = await this._instance.cooldowns.canRunAction(cooldownUsage);
 
       if (typeof result === "string") {
+        // this means cooldown returned an error message for the user
         return result;
       }
 
@@ -161,6 +173,7 @@ class CommandHandler {
       };
     }
 
+    // Finally, run the command
     return await callback(usage);
   }
 

@@ -48,6 +48,14 @@ module.exports = {
     // TODO If the permission doesn't exist list all avaliable
     // TODO If permission is "clear" clear all permission requirements
 
+   const alreadySet = await requiredPermissions.findOne({ _id, permissions:{
+        $in: [permission]
+   } });
+
+    if (alreadySet) {
+        return `The command "${command.commandName}" no longer requires "${permission}".`;
+    }
+
     await requiredPermissions.findOneAndUpdate(
       {
         _id,
