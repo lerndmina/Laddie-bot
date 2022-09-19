@@ -22,7 +22,7 @@ class CommandHandler {
     this.interactionListener(client);
   }
 
-  getCommands() {
+  get Commands() {
     return this._commands;
   }
 

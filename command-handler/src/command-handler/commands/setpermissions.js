@@ -37,7 +37,7 @@ module.exports = {
   callback: async ({ instance, guild, args }) => {
     const [commandName, permission] = args;
 
-    console.log(instance.commandHandler._commands.get(commandName))
+    console.log(instance.commandHandler.commands.get(commandName))
 
     const command = instance.commandHandler.commands.get(commandName);
 
