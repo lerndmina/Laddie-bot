@@ -58,7 +58,7 @@ class SlashCommands {
             options
         })
       } else {
-        console.log(`Command "${name}" is the same, skipping...`);
+        console.log(`Command "${name}" loaded.`);
       }
       return;
     }

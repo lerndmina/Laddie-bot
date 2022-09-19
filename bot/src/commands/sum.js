@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require("discord.js")
+const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js")
 
 module.exports = {
   description: "Adds 2+ numbers together.",
@@ -12,6 +12,7 @@ module.exports = {
 
   type: "LEGACY", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
+  guildOnly: true,
 
   reply: true, // replies will @ mention on Discord
 
@@ -24,8 +25,19 @@ module.exports = {
     errorMessage: "Please wait {TIME} before trying that again.",
   },
 
-  // guildOnly: true,
-  // ownerOnly: true,
+  permissions: [
+    // Pick one of
+    // user, bot
+    PermissionFlagsBits.Administrator,
+    PermissionFlagsBits.KickMembers,
+    PermissionFlagsBits.BanMembers,
+    PermissionFlagsBits.ManageChannels,
+    PermissionFlagsBits.ManageGuild,
+    PermissionFlagsBits.AddReactions,
+    PermissionFlagsBits.ViewAuditLog,
+    PermissionFlagsBits.PrioritySpeaker,
+    PermissionFlagsBits.Stream,
+  ],
 
   deferReply: false, // true, false "ephemeral"
 

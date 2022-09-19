@@ -17,9 +17,7 @@ module.exports = {
     },
   ],
 
-  autocomplete: ( interaction, command, arg ) => {
-    console.log(`Command name: ${command.commandName}`)
-    console.log(`Arg: ${arg}`)
+  autocomplete: ( interaction, command, arg ) => { // interaction only
 
     return ["Desktop", "Laptop", "Mobile", "Other"]
   },

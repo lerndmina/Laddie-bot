@@ -1,3 +1,5 @@
+const replyHandler = require("../../../util/reply-handler");
+
 module.exports = (command, usage, prefix) => {
   const {
     minArgs = 0,
@@ -17,11 +19,7 @@ module.exports = (command, usage, prefix) => {
 
       const {message, interaction} = usage
 
-      if(message){
-        message.reply(text)
-      } else if (interaction){
-        interaction.reply(text)
-      }
+      replyHandler(message, interaction, text, command.commandObject.deferReply)
     return false;
   }
 

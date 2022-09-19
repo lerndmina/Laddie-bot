@@ -198,6 +198,7 @@ class CommandHandler {
   interactionListener(client) {
     client.on("interactionCreate", async (interaction) => {
       if (interaction.type !== InteractionType.ApplicationCommand) {
+        this.handleAutocomplete(interaction);
         return;
       }
 
@@ -242,28 +243,31 @@ class CommandHandler {
   }
 
   async handleAutocomplete(interaction) {
-    const command = this._commands.get(interaction.commandName);
+    const command = this._commands.get(interaction.commandName)
     if (!command) {
-      return;
+      return
     }
 
-    const { autocomplete } = command.commmandObject
-
-    if (!autocomplete){
+    const { autocomplete } = command.commandObject
+    if (!autocomplete) {
       return
     }
 
     const focusedOption = interaction.options.getFocused(true)
     const choices = await autocomplete(interaction, command, focusedOption.name)
 
-    const filtered = choices.filter((choice) => {
-      return choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
-    }).slice(0, 25)
-    
-    await interaction.respond(filtered.map((choice) => ({
-      name: choice.name,
-      value: choice.value
-    })))
+    const filtered = choices
+      .filter((choice) =>
+        choice.toLowerCase().startsWith(focusedOption.value.toLowerCase())
+      )
+      .slice(0, 25)
+
+    await interaction.respond(
+      filtered.map((choice) => ({
+        name: choice,
+        value: choice,
+      }))
+    )
   }
 
   getValidations(folder) {
