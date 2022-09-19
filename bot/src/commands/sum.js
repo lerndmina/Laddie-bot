@@ -9,13 +9,23 @@ module.exports = {
 
   // delete: true,
 
-  type: "BOTH", // Valid types = LEGACY, SLASH, BOTH
+  type: "SLASH", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
+
+  reply: false, // replies will @ mention on Discord
 
   // guildOnly: true,
   // ownerOnly: true,
 
-  callback: ({ args }) => {
+  deferReply: "ephemeral", // true, false "ephemeral"
+
+  aliases: ["add", "plus"],
+
+  // init: async (client, instance) => { // run once
+  //   console.log("Hello world from add command")
+  // },
+
+  callback: async ({ args }) => { // run on execute
     let sum = 0
 
     for(const arg of args){
@@ -26,6 +36,9 @@ module.exports = {
       return("Please provide numbers only")
       
     }
+
+    await new Promise(resolve => setTimeout(resolve, 3000)) // Quick timeout to test defer
+
     return(`The sum is ${sum}`)
     
   },

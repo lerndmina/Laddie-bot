@@ -15,12 +15,13 @@ class CommandHandler {
     this._instance = instance;
     this._commandsDir = commandsDir;
     this._slashCommands = new SlashCommands(client);
+    this._client = client;
     this.readFiles();
     this.messageListener(client);
     this.interactionListener(client);
   }
 
-  readFiles() {
+  async readFiles() {
     const files = getAllFiles(this._commandsDir);
     const validations = this.getValidations("syntax");
 
@@ -33,7 +34,14 @@ class CommandHandler {
 
       const command = new Command(this._instance, commandName, commandObject);
 
-      const { description, type, testOnly, delete: del } = commandObject;
+      const {
+        description,
+        type,
+        testOnly,
+        delete: del,
+        aliases = [],
+        init = () => {},
+      } = commandObject;
 
       if (del) {
         if (type === "SLASH" || type === "BOTH") {
@@ -52,7 +60,13 @@ class CommandHandler {
         validation(command);
       }
 
-      this._commands.set(command.commandName, command);
+      await init(this._client, this._instance);
+
+      const names = [command.commandName, ...aliases];
+
+      for (const name of names) {
+        this._commands.set(name, command);
+      }
 
       if (type === "SLASH" || type === "BOTH") {
         const options =
@@ -75,12 +89,7 @@ class CommandHandler {
     }
   }
 
-  async runCommand(commandName, args, message, interaction) {
-    const command = this._commands.get(commandName);
-    if (!command) {
-      return;
-    }
-
+  async runCommand(command, args, message, interaction) {
     const { callback, type } = command.commandObject;
 
     if (message && type === "SLASH") {
@@ -94,11 +103,11 @@ class CommandHandler {
       text: args.join(" "),
       guild: message ? message.guild : interaction.guild,
       member: message ? message.member : interaction.member,
-      user: message ? message.author : interaction.user
+      user: message ? message.author : interaction.user,
     };
 
     for (const validation of this._validations) {
-      if (!validation(command, usage, this._prefix)) { 
+      if (!validation(command, usage, this._prefix)) {
         // Reminder for me this returns true if the command can run
         return;
       }
@@ -121,10 +130,29 @@ class CommandHandler {
         .substring(this._prefix.length)
         .toLowerCase();
 
-      const response = await this.runCommand(commandName, args, message);
-      if (response) {
-        message.reply(response).catch(() => {});
+      const command = this._commands.get(commandName);
+      if (!command) {
+        return;
       }
+
+      const { reply, deferReply, type } = command.commandObject
+
+
+      if(deferReply && (type === "BOTH" || type === "LEGACY")){
+       message.channel.sendTyping() 
+      }
+
+      const response = await this.runCommand(command, args, message);
+      if (!response) {
+        return
+      }
+      if(reply){
+        message.reply(response).catch(() => {});
+      }else{
+        message.channel.send(response).catch(() => {})
+      }
+
+      
     });
   }
 
@@ -138,14 +166,35 @@ class CommandHandler {
         return String(value);
       });
 
+      const command = this._commands.get(interaction.commandName);
+      if (!command) {
+        return;
+      }
+
+      const { deferReply } = command.commandObject
+
+      if(deferReply){
+        // post a message informing the user a reply is coming.
+        await interaction.deferReply({
+          // if deferReply is set to "ephemeral" and the command is an interaction then hide the command from others.
+          ephemeral: deferReply === "ephemeral"
+        })
+      }
+
       const response = await this.runCommand(
-        interaction.commandName,
+        command,
         args,
         null,
         interaction
       );
 
-      if (response) {
+      if (!response) {
+        return
+      }
+
+      if(deferReply){
+        interaction.editReply(response).catch(() => {});
+      } else{
         interaction.reply(response).catch(() => {});
       }
     });
