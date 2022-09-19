@@ -19,6 +19,7 @@ class Main {
     this._testServers = testServers;
     this._botOwners = botOwners;
     this._cooldowns = new Cooldowns({
+      instance: this,
       ...cooldownConfig,
     });
 
