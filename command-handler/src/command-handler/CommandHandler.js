@@ -97,9 +97,9 @@ class CommandHandler {
       return;
     }
 
-    const guild = message ? message.guild : interaction.guild
-    const member = message ? message.member : interaction.member
-    const user = message ? message.author : interaction.user
+    const guild = message ? message.guild : interaction.guild;
+    const member = message ? message.member : interaction.member;
+    const user = message ? message.author : interaction.user;
 
     const usage = {
       message,
@@ -119,34 +119,41 @@ class CommandHandler {
     }
 
     if (cooldowns) {
-      let cooldownType
+      let cooldownType;
 
-      for(const type of cooldownTypes){
-        if(cooldowns[type]){
-          cooldownType = type
-          break
+      for (const type of cooldownTypes) {
+        if (cooldowns[type]) {
+          cooldownType = type;
+          break;
         }
       }
-    
 
-    // check cooldowns
-    const cooldownUsage = {
-      cooldownType,
-      userID: user.id,
-      actionID: `command_${command.commandName}`,
-      guildID: guild?.id,
-      duration: cooldowns[cooldownType],
-      errorMessage: cooldowns.errorMessage,
+      // check cooldowns
+      const cooldownUsage = {
+        cooldownType,
+        userID: user.id,
+        actionID: `command_${command.commandName}`,
+        guildID: guild?.id,
+        duration: cooldowns[cooldownType],
+        errorMessage: cooldowns.errorMessage,
+      };
+
+      const result = await this._instance.cooldowns.canRunAction(cooldownUsage);
+
+      if (typeof result === "string") {
+        return result;
+      }
+
+      await this._instance.cooldowns.startCooldown(cooldownUsage);
+
+      usage.cancelCooldown = () => {
+        this._instance.cooldowns.cancelCooldown(cooldownUsage);
+      };
+
+      usage.updateCooldown = (expires) => {
+        this._instance.cooldowns.updateCooldown(cooldownUsage, expires);
+      };
     }
-
-    const result = await this._instance.cooldowns.canRunAction(cooldownUsage)
-
-    if(typeof result === "string"){
-      return result
-    }
-
-    this._instance.cooldowns.startCooldown(cooldownUsage)
-  }
 
     return await callback(usage);
   }
@@ -170,24 +177,21 @@ class CommandHandler {
         return;
       }
 
-      const { reply, deferReply, type } = command.commandObject
+      const { reply, deferReply, type } = command.commandObject;
 
-
-      if(deferReply && (type === "BOTH" || type === "LEGACY")){
-       message.channel.sendTyping() 
+      if (deferReply && (type === "BOTH" || type === "LEGACY")) {
+        message.channel.sendTyping();
       }
 
       const response = await this.runCommand(command, args, message);
       if (!response) {
-        return
+        return;
       }
-      if(reply){
+      if (reply) {
         message.reply(response).catch(() => {});
-      }else{
-        message.channel.send(response).catch(() => {})
+      } else {
+        message.channel.send(response).catch(() => {});
       }
-
-      
     });
   }
 
@@ -198,6 +202,13 @@ class CommandHandler {
       }
 
       const args = interaction.options.data.map(({ value }) => {
+        if (
+          interaction.type === InteractionType.ApplicationCommandAutocomplete
+        ) {
+          this.handleAutocomplete(interaction);
+          return;
+        }
+
         return String(value);
       });
 
@@ -206,33 +217,53 @@ class CommandHandler {
         return;
       }
 
-      const { deferReply } = command.commandObject
+      const { deferReply } = command.commandObject;
 
-      if(deferReply){
+      if (deferReply) {
         // post a message informing the user a reply is coming.
         await interaction.deferReply({
           // if deferReply is set to "ephemeral" and the command is an interaction then hide the command from others.
-          ephemeral: deferReply === "ephemeral"
-        })
+          ephemeral: deferReply === "ephemeral",
+        });
       }
 
-      const response = await this.runCommand(
-        command,
-        args,
-        null,
-        interaction
-      );
+      const response = await this.runCommand(command, args, null, interaction);
 
       if (!response) {
-        return
+        return;
       }
 
-      if(deferReply){
+      if (deferReply) {
         interaction.editReply(response).catch(() => {});
-      } else{
+      } else {
         interaction.reply(response).catch(() => {});
       }
     });
+  }
+
+  async handleAutocomplete(interaction) {
+    const command = this._commands.get(interaction.commandName);
+    if (!command) {
+      return;
+    }
+
+    const { autocomplete } = command.commmandObject
+
+    if (!autocomplete){
+      return
+    }
+
+    const focusedOption = interaction.options.getFocused(true)
+    const choices = await autocomplete(interaction, command, focusedOption.name)
+
+    const filtered = choices.filter((choice) => {
+      return choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
+    }).slice(0, 25)
+    
+    await interaction.respond(filtered.map((choice) => ({
+      name: choice.name,
+      value: choice.value
+    })))
   }
 
   getValidations(folder) {

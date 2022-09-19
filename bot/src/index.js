@@ -14,9 +14,12 @@ const client = new Client({
 })
 
 client.on('ready', () => {
-  const ownerIDs = ["234439833802637313"]
+  const ownerIDs = (process.env.OWNER_ID).split(',')
   console.log(`Logged into discord as ${client.user.tag}`)
   console.log(`Owners set as ${ownerIDs}`)
+  
+  // client.application.commands.set([]) 
+  //! Use this to delete all commands if a mistake has been made
 
   new CommandHandler({
     client,

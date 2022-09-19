@@ -34,7 +34,60 @@ class Cooldowns {
     this._botOwnersBypass = botOwnersBypass;
     this._dbRequired = dbRequired;
 
-    //TODO: load all cooldowns from mongo
+    this.loadCooldowns();
+  }
+
+  async loadCooldowns() {
+    const deleteRequest = await cooldownSchema.deleteMany({ expires: {$lt: new Date()} })
+
+    const results = await cooldownSchema.find({})
+    for (const result of results) {
+        const { _id: key, expires } = result
+
+        this._cooldowns.set(key, expires) 
+    }
+
+    console.log(`Loaded ${this._cooldowns.size} cooldowns from the database.`)
+    console.log(`Deleted ${deleteRequest.deletedCount} expired cooldowns.`)
+  }
+
+  getKeyFromCooldownUsage(cooldownUsage){
+    const { cooldownType, userID, actionID, guildID} = cooldownUsage
+
+    return this.getCooldownKey(cooldownType, userID, actionID, guildID)
+  }
+
+  async cancelCooldown(cooldownUsage) {
+    const key = this.getKeyFromCooldownUsage(cooldownUsage)
+
+    this._cooldowns.delete(key)
+    await cooldownSchema.deleteOne({ _id: key })
+  }
+
+  async updateCooldown(cooldownUsage, expires){
+    const key = this.getKeyFromCooldownUsage(cooldownUsage)
+
+    this._cooldowns.set(key, expires)
+
+    const now = new Date()
+    const secondsDiff = (expires.getTime() - now.getTime()) / 1000
+    if(secondsDiff >= this._dbRequired){
+       await cooldownSchema.findOneAndUpdate(
+      {
+          _id: key,
+
+      },
+      {
+          _id: key,
+          expires,
+      },
+      {
+          upsert: true,
+          // update
+          // and insert
+      }
+    ) 
+    }    
   }
 
   getCooldownSeconds(duration) {
@@ -111,14 +164,13 @@ class Cooldowns {
       );
     }
 
-    const key = this.getCooldownKey(cooldownType, userID, actionID, guildID);
+    const key = this.getCooldownKey(cooldownType, userID, actionID, guildID)
+    const expires = new Date()
 
-    const expires = new Date();
-    expires.setSeconds(expires.getSeconds() + seconds);
+    this._cooldowns.set(key, expires)
 
-    this._cooldowns.set(key, expires);
-
-    const seconds = this.getCooldownSeconds(duration);
+    const seconds = this.getCooldownSeconds(duration)
+    expires.setSeconds(expires.getSeconds() + seconds)
 
     if (seconds >= this._dbRequired) {
       await cooldownSchema.findOneAndUpdate(

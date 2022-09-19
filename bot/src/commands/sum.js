@@ -1,4 +1,5 @@
 const { ApplicationCommandOptionType } = require("discord.js")
+
 module.exports = {
   description: "Adds 2+ numbers together.",
 
@@ -18,7 +19,7 @@ module.exports = {
     // Pick one of
     // perUser, perUserPerGuild, perGuild, global
     // s m h d
-    perUserPerGuild: "30 d",
+    perUserPerGuild: "30 s",
 
     errorMessage: "Please wait {TIME} before trying that again.",
   },
@@ -34,7 +35,8 @@ module.exports = {
   //   console.log("Hello world from add command")
   // },
 
-  callback: async ({ args }) => { // run on execute
+  callback: async ({ args, cancelCooldown, updateCooldown }) => { // run on execute
+
     let sum = 0
 
     for(const arg of args){
