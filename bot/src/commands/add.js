@@ -29,8 +29,6 @@ module.exports = {
   },
 
   // permissions: [
-  //   // Pick one of
-  //   // user, bot
   //   PermissionFlagsBits.Administrator,
   //   PermissionFlagsBits.KickMembers,
   //   PermissionFlagsBits.BanMembers,

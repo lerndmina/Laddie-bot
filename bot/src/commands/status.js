@@ -12,6 +12,8 @@ module.exports = {
 
   ownerOnly: true,
 
+  deferReply: "ephemeral",
+
   expectedArgs: "<type> <status> <message>",
   correctSyntax: "{PREFIX}{COMMAND_NAME} {ARGS}",
 

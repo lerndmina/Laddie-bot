@@ -16,19 +16,13 @@ module.exports = {
   reply: true, // replies will @ mention on Discord
 
   cooldowns:{
-    // Pick one of
-    // perUser, perUserPerGuild, perGuild, global
-    // s m h d
+    // perUser, perUserPerGuild, perGuild, global, s m h d
     perUserPerGuild: "30 s",
 
     errorMessage: "Please wait {TIME} before trying that again.",
   },
 
   deferReply: true, // true, false "ephemeral"
-
-  // init: async (client, instance) => { // run once
-  //   console.log("Hello world from add command")
-  // },
 
   callback: async ({ args, interaction, instance }) => { // run on execute
 
