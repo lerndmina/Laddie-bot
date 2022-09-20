@@ -28,7 +28,7 @@ class CommandHandler {
     console.log(`The bot owners ${botOwners} have been loaded in the command handler`);
   }
 
-  get Commands() {
+  get commands() {
     return this._commands;
   }
 
@@ -159,6 +159,7 @@ class CommandHandler {
 
       if (typeof result === "string") {
         // this means cooldown returned an error message for the user
+
         return result;
       }
 
