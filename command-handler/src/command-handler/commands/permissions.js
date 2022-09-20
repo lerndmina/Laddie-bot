@@ -2,7 +2,7 @@ const {
   PermissionFlagsBits,
   ApplicationCommandOptionType,
 } = require("discord.js");
-const requiredPermissions = require("../../models/setpermissions-schema");
+const requiredPermissions = require("../../models/permissions-schema");
 
 const clear = "Clear";
 
@@ -13,14 +13,15 @@ module.exports = {
   guildOnly: true,
   testOnly: true,
 
+  // delete: true,
+
   permissions: [PermissionFlagsBits.ADMINISTRATOR],
 
-  cooldowns:{
+  cooldowns: {
     perGuild: "15 s",
-    errorMessage: "This command interacts with a database.\n Please wait {TIME} before trying that again.",
+    errorMessage:
+      "This command interacts with a database.\n Please wait {TIME} before trying that again.",
   },
-
-  
 
   options: [
     {
@@ -34,7 +35,7 @@ module.exports = {
       name: "permission",
       description: "The permission to set for the command",
       type: ApplicationCommandOptionType.String,
-      required: true,
+      required: false,
       autocomplete: true,
     },
   ],
@@ -60,8 +61,15 @@ module.exports = {
 
     const _id = `${guild.id}-${command.commandName}`;
 
-    // TODO If the permission doesn't exist list all avaliable
-    if(permission === clear) {
+    if (!permission) {
+      const document = await requiredPermissions.findById(_id);
+
+      const permissions = document ? document.permissions.join("\n") : "None";
+
+      return `The required permissions for the command "${command.commandName}" are.\`\`\`${permissions}\`\`\``;
+    }
+
+    if (permission === clear) {
       await requiredPermissions.deleteOne({ _id });
 
       return `Cleared permissions for command "${command.commandName}"`;
@@ -105,6 +113,6 @@ module.exports = {
       }
     );
 
-    return `The command "${commandName} now requires the permission "${permission}"`;
+    return `The command "${commandName}" now requires the permission "${permission}"`;
   },
 };

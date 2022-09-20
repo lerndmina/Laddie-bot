@@ -23,7 +23,7 @@ module.exports = {
     // Pick one of
     // perUser, perUserPerGuild, perGuild, global
     // s m h d
-    perUserPerGuild: "30 s",
+    global: "30 m",
 
     errorMessage: "Please wait {TIME} before trying that again.",
   },
@@ -42,7 +42,7 @@ module.exports = {
   //   PermissionFlagsBits.Stream,
   // ],
 
-  deferReply: true, // true, false "ephemeral"
+  deferReply: false, // true, false "ephemeral"
 
   // init: async (client, instance) => { // run once
   //   console.log("Hello world from add command")
