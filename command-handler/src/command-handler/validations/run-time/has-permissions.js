@@ -8,8 +8,6 @@ module.exports = async (command, usage) => {
   const { permissions = [], deferReply } = command.commandObject;
   const { member, message, interaction, guild } = usage;
 
-  console.log(deferReply)
-
   if (!member) return true;
 
   const document = await requiredPermissions.findById(
