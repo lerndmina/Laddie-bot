@@ -24,8 +24,8 @@ class CommandHandler {
     this.interactionListener(client);
 
     const _prefix = this._instance.prefix;
-    console.log(`The prefix ${_prefix} has been loaded in the command handler`);
-    console.log(`The bot owners ${botOwners} have been loaded in the command handler`);
+    // console.log(`The prefix ${_prefix} has been loaded in the command handler`);
+    // console.log(`The bot owners ${botOwners} have been loaded in the command handler`);
   }
 
   get commands() {
