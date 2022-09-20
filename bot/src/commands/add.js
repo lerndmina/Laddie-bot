@@ -13,7 +13,7 @@ module.exports = {
 
   // delete: true,
 
-  type: "SLASH", // Valid types = LEGACY, SLASH, BOTH
+  type: "BOTH", // Valid types = LEGACY, SLASH, BOTH
   testOnly: true, // default false
   guildOnly: true,
 
