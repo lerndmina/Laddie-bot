@@ -4,6 +4,8 @@ const {
 } = require("discord.js");
 const requiredPermissions = require("../../models/setpermissions-schema");
 
+const clear = "Clear";
+
 module.exports = {
   description: "Set the required permissions for a command.",
   expectedArgs: "<command> <permissions>",
@@ -12,6 +14,13 @@ module.exports = {
   testOnly: true,
 
   permissions: [PermissionFlagsBits.ADMINISTRATOR],
+
+  cooldowns:{
+    perGuild: "15 s",
+    errorMessage: "This command interacts with a database.\n Please wait {TIME} before trying that again.",
+  },
+
+  
 
   options: [
     {
@@ -30,8 +39,14 @@ module.exports = {
     },
   ],
 
-  autocomplete: (instance, _, arg) => {
-    return ["sum", "BanMembers"];
+  autocomplete: (_, command, arg) => {
+    if (arg === "command") {
+      // return all commands
+      return [...command.instance.commandHandler.commands.keys()];
+    } else if (arg === "permission") {
+      // return all permissions
+      return [clear, ...Object.keys(PermissionFlagsBits)];
+    }
   },
 
   callback: async ({ instance, guild, args }) => {
@@ -46,14 +61,33 @@ module.exports = {
     const _id = `${guild.id}-${command.commandName}`;
 
     // TODO If the permission doesn't exist list all avaliable
-    // TODO If permission is "clear" clear all permission requirements
+    if(permission === clear) {
+      await requiredPermissions.deleteOne({ _id });
 
-   const alreadySet = await requiredPermissions.findOne({ _id, permissions:{
-        $in: [permission]
-   } });
+      return `Cleared permissions for command "${command.commandName}"`;
+    }
+
+    const alreadySet = await requiredPermissions.findOne({
+      _id,
+      permissions: {
+        $in: [permission],
+      },
+    });
 
     if (alreadySet) {
-        return `The command "${command.commandName}" no longer requires "${permission}".`;
+      await requiredPermissions.findOneAndUpdate(
+        {
+          _id,
+        },
+        {
+          _id,
+          $pull: {
+            permissions: permission,
+          },
+        }
+      );
+
+      return `The command "${command.commandName}" no longer requires "${permission}".`;
     }
 
     await requiredPermissions.findOneAndUpdate(
@@ -63,8 +97,8 @@ module.exports = {
       {
         _id,
         $addToSet: {
-            permissions: permission
-        }
+          permissions: permission,
+        },
       },
       {
         upsert: true,

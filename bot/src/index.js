@@ -59,6 +59,7 @@ client.on('ready', () => {
   console.log(`Test servers set as "${testServersArray.join(', ')}"`)
   console.log(`Prefix set as "${prefix}"`)
   console.log(`MongoDB URI located in .env file.`)
+
   
   // client.application.commands.set([]) 
   //! Use this to delete all commands if a mistake has been made
@@ -73,7 +74,7 @@ client.on('ready', () => {
     botOwners: ownerIDArray,
     prefix: prefix,
     cooldownConfig:{
-      errorMessage: "Please wait {TIME}",
+      errorMessage: "This command is computationally expensive, please wait {time} before using it again.",
       botOwnersBypass: false,
       dbRequired: 300 // in seconds / 5 mins
     }
