@@ -13,17 +13,18 @@ class CommandHandler {
 
   // get the prefix from the main instance
 
-  constructor(instance, commandsDir, client, botOwners) {
+  constructor(instance, commandsDir, client, botOwners, prefix) {
     this._instance = instance;
     this._commandsDir = commandsDir;
     this._slashCommands = new SlashCommands(client);
     this._client = client;
     this._botOwners = botOwners;
+    this._prefix = prefix
+
     this.readFiles();
     this.messageListener(client);
     this.interactionListener(client);
 
-    const _prefix = this._instance.prefix;
     // console.log(`The prefix ${_prefix} has been loaded in the command handler`);
     // console.log(`The bot owners ${botOwners} have been loaded in the command handler`);
   }
