@@ -20,45 +20,46 @@ const client = new Client({
 })
 
 client.on('ready', () => {
-  const ownerIDs = process.env.OWNER_ID
+  const OWNER_IDS = process.env.OWNER_ID
   var ownerIDArray = []
 
-  const mongoUri = process.env.MONGO_URI
+  const MONGO_URI_LOADED = process.env.MONGO_URI
 
-  var testServers = process.env.TEST_SERVERS
+  const TEST_SERVERS_LOADED = process.env.TEST_SERVERS
   var testServersArray = []
 
-  const prefix = process.env.PREFIX
+  const PREFIX_LOADED = process.env.PREFIX
   
 
-  if(!ownerIDs){
+  if(!OWNER_IDS){
     console.log('[FATAL!] No OWNER_ID specified. Please specify an OWNER_ID in the .env file.\n')
     process.exit()
   } else{
-    ownerIDArray = ownerIDs.split(',')
+    ownerIDArray = OWNER_IDS.split(',')
   }
-  if(!mongoUri){
+  if(!MONGO_URI_LOADED){
     console.log('[FATAL!] No MONGO_URI specified. Please specify a MONGO_URI in the .env file.\n')
     process.exit()
   }
-  if(!testServers){
+  if(!TEST_SERVERS_LOADED){
     console.log('Test servers not specified. If you want to test slash commands, please specify a TEST_SERVERS in the .env file.\n')
-    testServers = []
+    TEST_SERVERS_LOADED = []
   } else{
-    testServersArray = testServers.split(',')
+    testServersArray = TEST_SERVERS_LOADED.split(',')
   }
-  if(!prefix){
+  if(!PREFIX_LOADED){
     console.log('[FATAL!] No PREFIX specified. Please specify a PREFIX in the .env file.\n')
     process.exit()
   }
   
   
 
-  console.log(`Logged into discord as ${client.user.tag}\n`)
   console.log(`Owners set as "${ownerIDArray.join(', ')}"`)
   console.log(`Test servers set as "${testServersArray.join(', ')}"`)
-  console.log(`Prefix set as "${prefix}"`)
+  console.log(`Prefix set as "${PREFIX_LOADED}"`)
   console.log(`MongoDB URI located in .env file.`)
+  console.log(`\nLogged into discord as ${client.user.tag}`)
+
 
   
   // client.application.commands.set([]) 
@@ -68,11 +69,11 @@ client.on('ready', () => {
 
   new CommandHandler({
     client,
-    mongoUri: process.env.MONGO_URI,
+    mongoUri: MONGO_URI_LOADED,
     commandsDir: path.join(__dirname, 'commands'),
     testServers: testServersArray, // must be an array of strings
     botOwners: ownerIDArray,
-    prefix: prefix,
+    prefix: PREFIX_LOADED,
     cooldownConfig:{
       errorMessage: "This command is computationally expensive, please wait {time} before using it again.",
       botOwnersBypass: false,

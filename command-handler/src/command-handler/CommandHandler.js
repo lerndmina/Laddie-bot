@@ -120,6 +120,8 @@ class CommandHandler {
     const usage = {
       instance: this._instance,
       botOwners: this._botOwners,
+      client: this._client,
+      command,
       message,
       interaction,
       args,
