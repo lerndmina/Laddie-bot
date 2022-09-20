@@ -130,7 +130,7 @@ class CommandHandler {
 
     // check runtime validations
     for (const validation of this._validations) {
-      if (!validation(command, usage, this._prefix)) {
+      if (! await(validation(command, usage, this._prefix))) {
         return;
       }
     }
