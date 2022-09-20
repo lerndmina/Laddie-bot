@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const path = require('path')
 
 const CommandHandler = require("./command-handler/CommandHandler");
 const Cooldowns = require("./util/Cooldowns");
@@ -25,13 +26,20 @@ class Main {
       instance: this,
       ...cooldownConfig,
     });
-
     if (mongoUri) {
       this.connectToMongo(mongoUri);
     }
 
     if (commandsDir) {
-      this._commandHandler = new CommandHandler(this, commandsDir, client, this._botOwners, this._prefix);
+      this._commandHandler = new CommandHandler(
+        this,
+        commandsDir,
+        client,
+        this._botOwners,
+        this._prefix
+      );
+    } else{
+      throw new Error("A commands directory is required for the command handler to work.")
     }
   }
 
@@ -48,8 +56,8 @@ class Main {
   get commandHandler() {
     return this._commandHandler;
   }
-  
-  get client(){
+
+  get client() {
     return this._client;
   }
 

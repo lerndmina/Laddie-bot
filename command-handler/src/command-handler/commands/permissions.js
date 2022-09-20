@@ -13,7 +13,6 @@ module.exports = {
   testOnly: true,
   guildOnly: true,
 
-  ownerOnly:true,
 
   permissions: [PermissionFlagsBits.Administrator],
 
