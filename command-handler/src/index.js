@@ -31,7 +31,7 @@ class Main {
     }
 
     if (commandsDir) {
-      this._commandHandler = new CommandHandler(this, commandsDir, client, this._botOwners);
+      this._commandHandler = new CommandHandler(this, commandsDir, client, this._botOwners, this._prefix);
     }
   }
 
@@ -41,10 +41,6 @@ class Main {
     return this._testServers;
   }
 
-  get botOwners() {
-    this._botOwners;
-  }
-
   get cooldowns() {
     return this._cooldowns;
   }
@@ -52,11 +48,7 @@ class Main {
   get commandHandler() {
     return this._commandHandler;
   }
-
-  get prefix() {
-    return this._prefix;
-  }
-
+  
   get client(){
     return this._client;
   }
