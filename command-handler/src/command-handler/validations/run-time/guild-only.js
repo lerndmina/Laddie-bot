@@ -1,15 +1,13 @@
+const replyHandler = require("../../../util/reply-handler")
+
 module.exports = (command, usage) => {
-    const { guildOnly } = command.commandObject
+    const { guildOnly, deferReply } = command.commandObject
     const { guild, message, interaction } = usage
 
     if(guildOnly === true && !guild){
         const text = `**__ERROR__**\`\`\`This command ${command.commandName} can only be ran inside a guild/server\`\`\``
         
-        if(message){
-            message.reply(text)
-          } else if (interaction){
-            interaction.reply(text)
-          }
+        replyHandler(message, interaction, text, deferReply)
 
         return false
     }
