@@ -17,6 +17,7 @@ class Main {
       throw new Error("A client is required.");
     }
 
+    this._client = client;
     this._testServers = testServers;
     this._botOwners = botOwners;
     this._prefix = prefix;
@@ -54,6 +55,10 @@ class Main {
 
   get prefix() {
     return this._prefix;
+  }
+
+  get client(){
+    return this._client;
   }
 
   connectToMongo(mongoUri) {
